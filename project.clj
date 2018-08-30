@@ -1,7 +1,8 @@
 (defproject exa "0.1.0-SNAPSHOT"
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [org.clojure/clojurescript "1.9.946"]
-                 [reagent "0.7.0"]]
+                 [reagent "0.7.0"]
+                 [fipp "0.6.12"]]
 
   :min-lein-version "2.5.3"
 
@@ -18,7 +19,7 @@
   {:dev
    {:dependencies []
 
-    :plugins      [[lein-figwheel "0.5.15"]]
+    :plugins [[lein-figwheel "0.5.15"]]
     }}
 
   :cljsbuild

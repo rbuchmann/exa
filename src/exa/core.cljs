@@ -2,7 +2,8 @@
   (:require
    [reagent.core :as reagent]
    [exa.assembly :as a]
-   ))
+   [cljs.reader :as edn]
+   [fipp.clojure :refer [pprint] :rename {pprint fipp}]))
 
 ;; Vars
 
@@ -10,22 +11,39 @@
   (reagent/atom {:input      ""
                  :transpiled ""}))
 
-;; Components
+;; Helper
 
 (defn transpile-exacode-string [s]
-  (try (-> s cljs.reader/read-string a/eval-exacode)
+  (try (-> s edn/read-string a/eval-exacode)
        (catch js/Error e
-           (str "Error parsing: " s))))
+         (str "Error parsing: " s ", Error was: " e))))
+
+(defn pretty-print [s]
+  (try
+    (-> s edn/read-string fipp with-out-str)
+    (catch js/Error e
+      (.log js/console "Something happened while pretty printing: " e)
+      s)))
+
+
+;; Components
+
 
 (defn editor [state]
   [:textarea.form-control
-   {:style {:min-height "800px"}
-    :value     (:input @state)
-    :on-change (fn [event]
-                 (let [new-value (-> event .-target .-value)]
-                   (swap! state assoc
-                          :input new-value
-                          :transpiled (transpile-exacode-string new-value))))}])
+   {:style        {:min-height "800px"}
+    :value        (:input @state)
+    :on-change    (fn [event]
+                    (let [new-value (-> event .-target .-value)]
+                      (swap! state assoc
+                             :input new-value
+                             :transpiled (transpile-exacode-string new-value))))
+    :on-key-press (fn [event]
+                    (when (and (.-shiftKey event)
+                               (= (.-key event) "Enter"))
+                      (.log js/console "been here")
+                      (.preventDefault event)
+                      (swap! state update :input pretty-print)))}])
 
 (defn transpile-display [state]
   [:pre
