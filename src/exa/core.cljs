@@ -2,6 +2,7 @@
   (:require
    [reagent.core :as reagent]
    [exa.assembly :as a]
+   [exa.csp :as csp]
    [cljs.reader :as edn]
    [fipp.clojure :refer [pprint] :rename {pprint fipp}]))
 
@@ -47,7 +48,8 @@
 
 (defn transpile-display [state]
   [:pre
-   {:style {:min-height "800px"}}
+   {:style {:min-height  "800px"
+            :white-space :pre-wrap}}
    (:transpiled @state)])
 
 ;; Page
@@ -69,8 +71,7 @@
 (defn dev-setup []
   (when ^boolean js/goog.DEBUG
     (enable-console-print!)
-    (println "dev mode")
-    ))
+    (println "dev mode")))
 
 (defn reload []
   (reagent/render [page app-state]
