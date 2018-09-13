@@ -1,8 +1,15 @@
 (ns exa.assembly
-  (:require [clojure.string :as str])
-  (:refer-clojure :exclude [+ - * / < > = drop test])
+  (:require [exa.utils :as u]
+            [clojure.string :as str])
+  (:refer-clojure :exclude [< > = drop test])
   #?(:cljs
      (:require-macros [exa.assembly :refer [defexas]])) )
+
+(def exa-symbols
+  '{x   "X"
+    t   "T"
+    eof "EOF"
+    mrd "MRD"})
 
 (defn fn-call [f & args]
   (let [f-name (-> f name str/upper-case)]
@@ -15,8 +22,9 @@
 (defn eval-exacode [c]
   (cond
     (seq? c) (eval-form c)
-    (keyword? c) (-> c name str/upper-case)
-    :default c))
+    (symbol? c) (or (exa-symbols c)
+                    (fail "not an exa symbol:" c))
+    :default (fail "Unrecognized form:" c)))
 
 #?(:clj
    (defmacro defexas [& fns]

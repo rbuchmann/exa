@@ -1,5 +1,6 @@
 (ns exa.csp
   (:require [exa.assembly :as a]
+            [exa.utils :as u]
             [clojure.string :as str])
   #?(:cljs
      (:require-macros [exa.csp :refer [bind-exa-forms]])))
@@ -49,8 +50,24 @@
      (a/test pred)
      (a/tjmp looplabel))))
 
+(defn dotimes* [n body]
+  (let [looplabel (genlabel "dotimes")]
+    (do*
+     (a/copy n :x)
+     (a/mark looplabel)
+     body
+     (a/test (a/> x 0))
+     (a/tjmp looplabel))))
+
+
+(def channels
+  '{f  "F"
+    m "M"
+    })
+
 (bind-exa-forms
- {do    do*
-  if    if*
-  when  when*
-  while while*})
+ {do      do*
+  if      if*
+  when    when*
+  while   while*
+  dotimes *dotimes})
