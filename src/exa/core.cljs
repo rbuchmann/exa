@@ -4,13 +4,16 @@
    [exa.assembly :as a]
    [exa.csp :as csp]
    [cljs.reader :as edn]
-   [fipp.clojure :refer [pprint] :rename {pprint fipp}]))
+   [zprint.core :refer [zprint] :as zp]
+))
 
 ;; Vars
 
 (defonce app-state
   (reagent/atom {:input      ""
                  :transpiled ""}))
+
+(zp/set-options! {:fn-map {"if" :arg1-force-nl}})
 
 ;; Helper
 
@@ -21,7 +24,7 @@
 
 (defn pretty-print [s]
   (try
-    (-> s edn/read-string fipp with-out-str)
+    (-> s edn/read-string zprint with-out-str)
     (catch js/Error e
       (.log js/console "Something happened while pretty printing: " e)
       s)))
@@ -32,7 +35,8 @@
 
 (defn editor [state]
   [:textarea.form-control
-   {:style        {:min-height "800px"}
+   {:style        {:min-height  "800px"
+                   :font-family :monospace}
     :value        (:input @state)
     :on-change    (fn [event]
                     (let [new-value (-> event .-target .-value)]
