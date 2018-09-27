@@ -1,15 +1,13 @@
 (ns exa.assembly
-  (:require [exa.utils :as u]
-            [clojure.string :as str])
-  (:refer-clojure :exclude [< > = drop test])
+  (:require [clojure.string :as str]
+            [exa.utils      :as u])
+  (:refer-clojure :exclude [+ - * / < > = drop test])
   #?(:cljs
-     (:require-macros [exa.assembly :refer [defexas]])) )
+     (:require-macros [exa.assembly :refer [defexas]])))
 
-(def exa-symbols
-  '{x   "X"
-    t   "T"
-    eof "EOF"
-    mrd "MRD"})
+(def ^:dynamic core-symbols
+  '{eof "EOF"
+    x   "X"})
 
 (defn fn-call [f & args]
   (let [f-name (-> f name str/upper-case)]
@@ -19,12 +17,14 @@
 
 (defmulti eval-form first)
 
+
 (defn eval-exacode [c]
   (cond
     (seq? c) (eval-form c)
-    (symbol? c) (or (exa-symbols c)
-                    (fail "not an exa symbol:" c))
-    :default (fail "Unrecognized form:" c)))
+    (symbol? c) (or (core-symbols c)
+                    (u/fail "Unknown symbol:" c))
+    (number? c) (str c)
+    :default c))
 
 #?(:clj
    (defmacro defexas [& fns]
@@ -72,8 +72,7 @@
 
   ;;communication
   (mode [])
-  (void [r])
-  (test [r]))
+  (void [r]))
 
 (defn infix-op [op-key a b]
   (str (eval-exacode a) " " (name op-key) " " (eval-exacode b)))
