@@ -50,6 +50,17 @@
      (a/test pred)
      (a/tjmp looplabel))))
 
+(defn fork [& args]
+  (let [labels (repeatedly (count args) (partial genlabel "fork"))]
+    (apply do*
+     (apply do* (map a/repl labels))
+     (a/halt)
+     (for [[label body] (map list labels args)]
+       (do*
+        (a/mark label)
+        body
+        (a/halt))))))
+
 (defmethod a/eval-form '+ [[_ a b]] (a/addi a b 'x))
 (defmethod a/eval-form '- [[_ a b]] (a/subi a b 'x))
 (defmethod a/eval-form '/ [[_ a b]] (a/divi a b 'x))
@@ -99,4 +110,5 @@
  {do    do*
   if    if*
   when  when*
-  while while*})
+  while while*
+  ||    fork})

@@ -13,7 +13,8 @@
   (reagent/atom {:input      ""
                  :transpiled ""}))
 
-(zp/set-options! {:fn-map {"if" :arg1-force-nl}})
+(zp/set-options! {:fn-map {"if" :arg1-force-nl
+                           "||" :flow}})
 
 ;; Helper
 
