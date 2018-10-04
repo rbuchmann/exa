@@ -54,7 +54,8 @@
 (defn transpile-display [state]
   [:pre
    {:style {:min-height  "800px"
-            :white-space :pre-wrap}}
+            :white-space :pre-wrap}
+    :id    "exacode"}
    (:transpiled @state)])
 
 ;; Page
@@ -69,7 +70,16 @@
       [editor state]]
      [:div.col-sm-6
       [:h3 "Transpiled"]
-      [transpile-display state]]]]])
+      [transpile-display state]]]
+    [:div.row
+     [:div.col-sm-12
+      [:button {:type  "button"
+                :class "btn btn-primary"
+                :on-click (fn []
+                            (let [code (.getElementById js/document "exacode")]
+                              (.select code)
+                              (.execCommand js/document "copy")))}
+       "Copy code to clipboard"]]]]])
 
 ;; Initialize App
 
