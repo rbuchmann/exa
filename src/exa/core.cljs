@@ -30,6 +30,19 @@
       (.log js/console "Something happened while pretty printing: " e)
       s)))
 
+(defn download [filename content & [mime-type]]
+  (let [mime-type (or mime-type (str "text/plain;charset=" (.-characterSet js/document)))
+        blob (new js/Blob
+                  (clj->js [content])
+                  (clj->js {:type mime-type}))
+        anchor (.createElement js/document "a")]
+    (set! (.-download anchor) filename)
+    (set! (.-href anchor) (js/window.URL.createObjectURL blob))
+    (set! (.-target anchor) "_blank")
+    (set! (-> anchor .-style .-display) "none")
+    (js/document.body.appendChild anchor)
+    (.click anchor)
+    (js/document.body.removeChild anchor)))
 
 ;; Components
 
@@ -74,13 +87,18 @@
       [transpile-display state]]]
     [:div.row
      [:div.col-sm-12
-      [:button {:type  "button"
-                :class "btn btn-primary"
-                :on-click (fn []
-                            (let [code (.getElementById js/document "exacode")]
-                              (.select code)
-                              (.execCommand js/document "copy")))}
-       "Copy code to clipboard"]]]]])
+      [:button.btn.btn-primary
+       {:type     "button"
+        :on-click (fn []
+                    (let [code (.getElementById js/document "exacode")]
+                      (.select code)
+                      (.execCommand js/document "copy")))}
+       "Copy code to clipboard"]
+      [:button.btn.btn-primary
+       {:type     "button"
+        :on-click (fn []
+                    (download "solution.txt" (:input @state)))}
+       "Download code"]]]]])
 
 ;; Initialize App
 
